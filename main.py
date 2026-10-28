@@ -7,9 +7,9 @@ from supabase import create_client, Client
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# Carregar credenciais de forma segura pelas variáveis de ambiente
-SUPABASE_URL = os.getenv("SUPABASE_URL", "https://jfqbkdbirwkchejlaohg.supabase.co")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
+# Configuração Oficial e Direta do Supabase (Sem depender de variáveis de ambiente)
+SUPABASE_URL = "https://jfqbkdbirwkchejlaohg.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWJrZGJpcndrY2hlaWpsb2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzc3MzAsImV4cCI6MjEwODc1MzczMH0.emxXE8DIItb0GG3U6ZPdbUqxkxjQ3Ad1QAiBE9Vv7Hw"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
