@@ -116,5 +116,132 @@
                         <!-- Caixa de Lembrar-me e Recuperação -->
                         <div class="flex justify-between items-center text-xs">
                             <label class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 cursor-pointer">
-                                <input type="checkbox" name="lembrar" class="
-                                    
+                                <input type="checkbox" name="lembrar" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500">
+                                <span>Lembrar-me</span>
+                            </label>
+                            <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:underline">Esqueceu a palavra-passe?</a>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">Entrar na Ferramenta</button>
+                    </form>
+                </div>
+
+                <!-- Formulário de Registo -->
+                <form id="form-reg-box" action="/auth/register" method="POST" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail de Registo</label>
+                        <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Criar Palavra-passe</label>
+                        <div class="relative">
+                            <input type="password" id="reg-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
+                            <button type="button" onclick="togglePassword('reg-password', 'eye-reg')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <svg id="eye-reg" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Criar Conta Gratuitamente</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- CONDIÇÃO 2: SE ESTIVER LOGADO -->
+        {% if logado %}
+        <div class="p-6 md:p-8 space-y-6">
+            <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div>
+                    <span class="text-xs text-slate-400 block">Sessão iniciada como:</span>
+                    <strong class="text-sm text-indigo-600 dark:text-indigo-400">{{ email_utilizador }}</strong>
+                </div>
+                <a href="/" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold px-3 py-2 rounded-lg transition flex items-center space-x-1">
+                    <span>🚪</span><span>Terminar Sessão</span>
+                </a>
+            </div>
+
+            <form action="/calcular" method="POST" class="space-y-4">
+                <input type="hidden" name="email" value="{{ email_utilizador }}">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Custo do Produto (R$)</label>
+                    <input type="number" step="0.01" name="custo_produto" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 50.00">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Valor do Frete (R$)</label>
+                    <input type="number" step="0.01" name="frete" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 10.00">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Taxa da Maquininha (%)</label>
+                        <input type="number" step="0.01" name="taxa_maquininha" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 5.0">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Margem Desejada (%)</label>
+                        <input type="number" step="0.01" name="margem_desejada" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 30.0">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">
+                    Calcular Preço Ideal e Lucro Líquido
+                </button>
+            </form>
+
+            {% if resultado %}
+            <div class="mt-6 p-5 bg-slate-50 dark:bg-slate-950/80 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl space-y-3 relative overflow-hidden shadow-inner">
+                <div class="absolute top-0 right-0 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Análise Concluída</div>
+                
+                <h2 class="font-bold text-emerald-600 dark:text-emerald-400 text-base mb-2">📊 Relatório de Precificação</h2>
+                
+                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">Custo Total Operacional:</span> 
+                    <span class="font-semibold text-slate-700 dark:text-slate-200">{{ resultado.custo_total }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">Preço de Venda Sugerido:</span> 
+                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ resultado.preco_venda_ideal }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm pt-1">
+                    <span class="text-slate-500 dark:text-slate-400">Lucro Líquido Real:</span> 
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 text-lg">{{ resultado.lucro_liquido }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Rodapé Profissional -->
+        <div class="bg-slate-50 dark:bg-slate-950/50 py-3 px-6 text-center border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500">
+            Auditor de Precificação &copy; 2026 — Alta Performance & Segurança Corporativa
+        </div>
+    </div>
+
+    <!-- Scripts de Interatividade -->
+    <script>
+        const htmlElement = document.documentElement;
+        const thumb = document.getElementById('theme-switch-thumb');
+        const iconLight = document.getElementById('icon-light');
+        const iconDark = document.getElementById('icon-dark');
+
+        function updateThemeUI() {
+            if (htmlElement.classList.contains('dark')) {
+                thumb.style.transform = 'translateX(16px)';
+                iconLight.classList.add('hidden');
+                iconDark.classList.remove('hidden');
+            } else {
+                thumb.style.transform = 'translateX(0px)';
+                iconLight.classList.remove('hidden');
+                iconDark.classList.add('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+              
