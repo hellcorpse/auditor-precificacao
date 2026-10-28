@@ -7,10 +7,10 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# URL de Conexão Oficial do Supabase (PostgreSQL)
+# URL de Conexão Oficial do Supabase (PostgreSQL corrigida sem hífen)
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql://postgres:Q3p4hXkwbN9fTIB6@db.jfqb-kdbirwkchejlaohg.supabase.co:5432/postgres"
+    "postgresql://postgres:Q3p4hXkwbN9fTIB6@db.jfqbkdbirwkchejlaohg.supabase.co:5432/postgres"
 )
 
 def get_db_connection():
@@ -216,4 +216,4 @@ def logout():
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie(key="user_session")
     return response
-    
+        
