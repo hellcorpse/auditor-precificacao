@@ -115,6 +115,19 @@
                 <div>
                     <span class="text-xs text-slate-400 block">Sessão iniciada como:</span>
                     <strong class="text-sm text-indigo-600 dark:text-indigo-400">{{ email_utilizador }}</strong>
+                    
+                    <!-- Indicador Visual do Plano -->
+                    <div class="mt-1.5">
+                        {% if is_pro %}
+                        <span class="inline-flex items-center space-x-1 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider border border-emerald-500/30">
+                            <span>🌟</span><span>Plano PRO (Ativo)</span>
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center space-x-1 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2.5 py-0.5 rounded-md uppercase tracking-wider">
+                            <span>👤</span><span>Plano Gratuito</span>
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
                 <a href="/" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold px-3 py-2 rounded-lg transition flex items-center space-x-1">
                     <span>🚪</span><span>Terminar Sessão</span>
@@ -177,9 +190,9 @@
             </div>
             {% endif %}
 
-            <!-- Histórico de Cálculos (Apenas para utilizadores PRO) -->
-            {% if is_pro %}
+            <!-- Secção de Histórico ou Aviso Pro -->
             <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                {% if is_pro %}
                 <h3 class="font-bold text-sm text-indigo-600 dark:text-indigo-400 flex items-center space-x-2">
                     <span>📜</span><span>Histórico de Cálculos Salvos (PRO)</span>
                 </h3>
@@ -199,9 +212,9 @@
                             {% for item in historico %}
                             <tr class="hover:bg-slate-50 dark:hover:bg-slate-950/40 transition">
                                 <td class="p-2.5 font-semibold text-slate-800 dark:text-white">{{ item[0] }}</td>
-                                <td class="p-2.5">R$ "%.2f" % item[1]</td>
-                                <td class="p-2.5 font-bold text-indigo-500">R$ "%.2f" % item[2]</td>
-                                <td class="p-2.5 font-bold text-emerald-500">R$ "%.2f" % item[3]</td>
+                                <td class="p-2.5">R$ {{ "%.2f" | format(item[1]) }}</td>
+                                <td class="p-2.5 font-bold text-indigo-500">R$ {{ "%.2f" | format(item[2]) }}</td>
+                                <td class="p-2.5 font-bold text-emerald-500">R$ {{ "%.2f" | format(item[3]) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -210,8 +223,19 @@
                 {% else %}
                 <p class="text-xs text-slate-400 italic">Ainda não existem cálculos salvos no histórico.</p>
                 {% endif %}
+
+                {% else %}
+                <!-- Aviso para utilizadores Free -->
+                <div class="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/50 p-4 rounded-xl flex items-center justify-between">
+                    <div class="space-y-1">
+                        <h4 class="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center space-x-1.5">
+                            <span>⭐</span><span>Desbloqueie o Histórico de Cálculos</span>
+                        </h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Faça upgrade para a versão PRO para guardar os seus cálculos e gerir os produtos.</p>
+                    </div>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
 
         </div>
         {% endif %}
@@ -258,33 +282,4 @@
         updateThemeUI();
 
         function togglePassword(fieldId, iconId) {
-            const passwordField = document.getElementById(fieldId);
-            const icon = document.getElementById(iconId);
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-            } else {
-                passwordField.type = 'password';
-            }
-        }
-
-        function switchAuth(mode) {
-            const btnLoginTab = document.getElementById('btn-login-tab');
-            const btnRegTab = document.getElementById('btn-reg-tab');
-            const formLoginBox = document.getElementById('form-login-box');
-            const formRegBox = document.getElementById('form-reg-box');
-
-            if (mode === 'login') {
-                btnLoginTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition";
-                btnRegTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
-                formLoginBox.classList.remove('hidden');
-                formRegBox.classList.add('hidden');
-            } else {
-                btnRegTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-emerald-600 dark:text-emerald-400 transition";
-                btnLoginTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
-                formRegBox.classList.remove('hidden');
-                formLoginBox.classList.add('hidden');
-            }
-        }
-    </script>
-</body>
-</html>
+  
