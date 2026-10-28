@@ -164,4 +164,3 @@ def logout():
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie(key="user_session")
     return response
-    
