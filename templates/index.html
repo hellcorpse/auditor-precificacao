@@ -21,11 +21,11 @@
 <body class="bg-slate-100 dark:bg-slate-950 min-h-screen flex flex-col items-center justify-center p-4 text-slate-800 dark:text-slate-100 transition-colors duration-300 font-sans">
 
     <!-- Container Principal -->
-    <div class="max-w-2xl w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
+    <div class="max-w-3xl w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
         
         <!-- Cabeçalho / Banner Principal -->
         <div class="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-700 p-8 relative text-white">
-            <!-- Interruptor de Tema Estilo SENAI (Lâmpada / Lua) -->
+            <!-- Interruptor de Tema -->
             <div class="absolute top-6 right-6 flex items-center bg-black/30 hover:bg-black/40 p-1.5 rounded-full border border-white/20 transition-all shadow-inner cursor-pointer" onclick="toggleTheme()" title="Alternar Tema">
                 <div class="w-7 h-7 rounded-full bg-white text-slate-900 flex items-center justify-center shadow-md transform transition-transform duration-300" id="theme-switch-thumb">
                     <svg id="icon-light" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -33,12 +33,17 @@
                 </div>
             </div>
 
-            <span class="inline-block bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider mb-3">Gestão e Lucratividade Real</span>
+            <div class="flex items-center space-x-2 mb-2">
+                <span class="inline-block bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Gestão e Lucratividade Real</span>
+                {% if is_pro %}
+                <span class="inline-block bg-emerald-500 text-slate-950 text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">PRO 🌟</span>
+                {% endif %}
+            </div>
             <h1 class="text-3xl font-extrabold tracking-tight">Auditor de Precificação</h1>
             <p class="text-indigo-100 text-sm mt-2 max-w-lg">Proteja suas margens de lucro, calcule taxas de cartão e frete com precisão cirúrgica antes de vender.</p>
         </div>
 
-        <!-- MENSAGENS DE ALERTA / SUCESSO CONDICIONAIS -->
+        <!-- MENSAGENS DE ALERTA / SUCESSO -->
         {% if erro and erro != "" %}
         <div class="m-6 p-4 bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-xl text-sm flex items-center space-x-2">
             <span>⚠️</span><span>{{ erro }}</span>
@@ -51,37 +56,29 @@
         </div>
         {% endif %}
 
-        <!-- CONDIÇÃO PRINCIPAL: SE NÃO ESTIVER LOGADO -->
+        <!-- CONDIÇÃO 1: SE NÃO ESTIVER LOGADO -->
         {% if not logado %}
         <div class="p-6 md:p-8 space-y-8">
-            
-            <!-- Informações Estratégicas -->
             <div class="bg-indigo-50 dark:bg-slate-950/60 border border-indigo-100 dark:border-slate-800 p-6 rounded-2xl space-y-3">
                 <h3 class="font-bold text-indigo-600 dark:text-indigo-400 text-base flex items-center space-x-2">
                     <span>💡</span><span>Para quem é recomendada esta ferramenta?</span>
                 </h3>
-                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Desenvolvida sob medida para dar total segurança financeira ao seu negócio:
-                </p>
                 <ul class="text-xs text-slate-600 dark:text-slate-300 space-y-2">
-                    <li class="flex items-start space-x-2"><span class="text-indigo-500 font-bold">✓</span><span><strong>Revendedores(as) de Cosméticos e Beleza:</strong> Calcule o preço ideal abatendo taxas de entrega e comissões de catálogo.</span></li>
-                    <li class="flex items-start space-x-2"><span class="text-indigo-500 font-bold">✓</span><span><strong>Lojistas e E-commerce:</strong> Proteja sua margem contra taxas de maquininhas de cartão e custos logísticos de frete.</span></li>
-                    <li class="flex items-start space-x-2"><span class="text-indigo-500 font-bold">✓</span><span><strong>Prestadores de Serviços:</strong> Garanta que o lucro líquido cubra todos os custos operacionais reais.</span></li>
+                    <li class="flex items-start space-x-2"><span class="text-indigo-500 font-bold">✓</span><span><strong>Revendedores(as) e Lojistas:</strong> Calcule o preço ideal abatendo taxas de entrega e comissões.</span></li>
                 </ul>
             </div>
 
-            <!-- Abas de Alternância -->
             <div class="space-y-4">
                 <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl">
                     <button onclick="switchAuth('login')" id="btn-login-tab" class="flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition">Aceder à Conta</button>
                     <button onclick="switchAuth('register')" id="btn-reg-tab" class="flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition">Registar Novo Utilizador</button>
                 </div>
 
-                <!-- Formulário de Login Principal Limpo -->
+                <!-- Formulário de Login -->
                 <form id="form-login-box" action="/auth/login" method="POST" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail</label>
-                        <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
+                        <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="admin@teste.com">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Palavra-passe</label>
@@ -92,17 +89,7 @@
                             </button>
                         </div>
                     </div>
-                    
-                    <!-- Caixa de Lembrar-me e Recuperação -->
-                    <div class="flex justify-between items-center text-xs">
-                        <label class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 cursor-pointer">
-                            <input type="checkbox" name="lembrar" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500">
-                            <span>Lembrar-me</span>
-                        </label>
-                        <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:underline">Esqueceu a palavra-passe?</a>
-                    </div>
-
-                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">Entrar na Ferramenta</button>
+                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Entrar na Ferramenta</button>
                 </form>
 
                 <!-- Formulário de Registo -->
@@ -113,12 +100,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Criar Palavra-passe</label>
-                        <div class="relative">
-                            <input type="password" id="reg-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
-                            <button type="button" onclick="togglePassword('reg-password', 'eye-reg')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                <svg id="eye-reg" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            </button>
-                        </div>
+                        <input type="password" name="password" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
                     </div>
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Criar Conta Gratuitamente</button>
                 </form>
@@ -126,7 +108,7 @@
         </div>
         {% endif %}
 
-        <!-- CONDIÇÃO PRINCIPAL 2: SE ESTIVER LOGADO -->
+        <!-- CONDIÇÃO 2: SE ESTIVER LOGADO -->
         {% if logado %}
         <div class="p-6 md:p-8 space-y-6">
             <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
@@ -139,16 +121,24 @@
                 </a>
             </div>
 
+            <!-- Formulário de Cálculo -->
             <form action="/calcular" method="POST" class="space-y-4">
                 <input type="hidden" name="email" value="{{ email_utilizador }}">
+                
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Custo do Produto (R$)</label>
-                    <input type="number" step="0.01" name="custo_produto" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 50.00">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nome do Produto</label>
+                    <input type="text" name="produto" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: Perfume Kaiak / Base Natura">
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Valor do Frete (R$)</label>
-                    <input type="number" step="0.01" name="frete" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 10.00">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Custo do Produto (R$)</label>
+                        <input type="number" step="0.01" name="custo_produto" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 50.00">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Valor do Frete (R$)</label>
+                        <input type="number" step="0.01" name="frete" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 10.00">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -156,50 +146,83 @@
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Taxa da Maquininha (%)</label>
                         <input type="number" step="0.01" name="taxa_maquininha" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 5.0">
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Margem Desejada (%)</label>
                         <input type="number" step="0.01" name="margem_desejada" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 30.0">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">
                     Calcular Preço Ideal e Lucro Líquido
                 </button>
             </form>
 
+            <!-- Resultado Atual -->
             {% if resultado %}
             <div class="mt-6 p-5 bg-slate-50 dark:bg-slate-950/80 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl space-y-3 relative overflow-hidden shadow-inner">
                 <div class="absolute top-0 right-0 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Análise Concluída</div>
-                
                 <h2 class="font-bold text-emerald-600 dark:text-emerald-400 text-base mb-2">📊 Relatório de Precificação</h2>
-                
                 <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
                     <span class="text-slate-500 dark:text-slate-400">Custo Total Operacional:</span> 
                     <span class="font-semibold text-slate-700 dark:text-slate-200">{{ resultado.custo_total }}</span>
                 </div>
-                
                 <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
                     <span class="text-slate-500 dark:text-slate-400">Preço de Venda Sugerido:</span> 
                     <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ resultado.preco_venda_ideal }}</span>
                 </div>
-                
                 <div class="flex justify-between items-center text-sm pt-1">
                     <span class="text-slate-500 dark:text-slate-400">Lucro Líquido Real:</span> 
                     <span class="font-bold text-emerald-600 dark:text-emerald-400 text-lg">{{ resultado.lucro_liquido }}</span>
                 </div>
             </div>
             {% endif %}
+
+            <!-- Histórico de Cálculos (Apenas para utilizadores PRO) -->
+            {% if is_pro %}
+            <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+                <h3 class="font-bold text-sm text-indigo-600 dark:text-indigo-400 flex items-center space-x-2">
+                    <span>📜</span><span>Histórico de Cálculos Salvos (PRO)</span>
+                </h3>
+                
+                {% if historico %}
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
+                        <thead class="bg-slate-100 dark:bg-slate-950 uppercase text-[10px] text-slate-400">
+                            <tr>
+                                <th class="p-2.5 rounded-l-lg">Produto</th>
+                                <th class="p-2.5">Custo Total</th>
+                                <th class="p-2.5">Preço Venda</th>
+                                <th class="p-2.5 rounded-r-lg">Lucro Líquido</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                            {% for item in historico %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-950/40 transition">
+                                <td class="p-2.5 font-semibold text-slate-800 dark:text-white">{{ item[0] }}</td>
+                                <td class="p-2.5">R$ "%.2f" % item[1]</td>
+                                <td class="p-2.5 font-bold text-indigo-500">R$ "%.2f" % item[2]</td>
+                                <td class="p-2.5 font-bold text-emerald-500">R$ "%.2f" % item[3]</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-xs text-slate-400 italic">Ainda não existem cálculos salvos no histórico.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
         </div>
         {% endif %}
 
-        <!-- Rodapé Profissional -->
+        <!-- Rodapé -->
         <div class="bg-slate-50 dark:bg-slate-950/50 py-3 px-6 text-center border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500">
-            Auditor de Precificação &copy; 2026 — Alta Performance & Segurança Corporativa
+            Auditor de Precificação &copy; 2026 — Versão Profissional PRO
         </div>
     </div>
 
-    <!-- Scripts de Interatividade -->
+    <!-- Scripts -->
     <script>
         const htmlElement = document.documentElement;
         const thumb = document.getElementById('theme-switch-thumb');
@@ -234,16 +257,13 @@
         }
         updateThemeUI();
 
-        // Alternância da visibilidade da senha (Olhinho)
         function togglePassword(fieldId, iconId) {
             const passwordField = document.getElementById(fieldId);
             const icon = document.getElementById(iconId);
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
             } else {
                 passwordField.type = 'password';
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
             }
         }
 
