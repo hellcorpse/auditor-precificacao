@@ -46,8 +46,7 @@ def index(request: Request, user_session: str = Cookie(None)):
         except Exception:
             historico = []
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "index.html", {
         "logado": logado,
         "is_pro": is_pro,
         "email_utilizador": email_utilizador,
@@ -62,8 +61,7 @@ def register(request: Request, email: str = Form(...), password: str = Form(...)
     try:
         existente = supabase.table("utilizadores").select("*").eq("email", email).execute()
         if existente.data:
-            return templates.TemplateResponse("index.html", {
-                "request": request,
+            return templates.TemplateResponse(request, "index.html", {
                 "logado": False,
                 "is_pro": False,
                 "erro": "Este e-mail já está registado.",
@@ -71,16 +69,14 @@ def register(request: Request, email: str = Form(...), password: str = Form(...)
             })
         
         supabase.table("utilizadores").insert({"email": email, "password": password}).execute()
-        return templates.TemplateResponse("index.html", {
-            "request": request,
+        return templates.TemplateResponse(request, "index.html", {
             "logado": False,
             "is_pro": False,
             "sucesso": "Conta criada com sucesso! Faça login abaixo.",
             "erro": ""
         })
     except Exception:
-        return templates.TemplateResponse("index.html", {
-            "request": request,
+        return templates.TemplateResponse(request, "index.html", {
             "logado": False,
             "is_pro": False,
             "erro": "Erro ao criar conta. Tente novamente.",
@@ -98,8 +94,7 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
     except Exception:
         pass
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "index.html", {
         "logado": False,
         "is_pro": False,
         "erro": "E-mail ou palavra-passe incorretos.",
@@ -154,8 +149,7 @@ def calcular(
         "lucro_liquido": f"R$ {lucro_liquido:.2f}"
     }
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "index.html", {
         "logado": True,
         "is_pro": is_pro,
         "email_utilizador": email,
