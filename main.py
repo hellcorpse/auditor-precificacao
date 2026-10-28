@@ -7,7 +7,6 @@ import hashlib
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# Configuração da Base de Dados SQLite
 DB_NAME = "database.db"
 
 def init_db():
@@ -18,7 +17,7 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            verified INTEGER DEFAULT 0
+            verified INTEGER DEFAULT 1
         )
     ''')
     conn.commit()
@@ -29,14 +28,79 @@ init_db()
 def hash_password(password: str):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# Rota Principal / Dashboard de Precificação
+# Rota Inicial: Exibe a tela de login/apresentação se não estiver logado
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request, "resultado": None, "erro": None})
+async def home(request: Request, erro: str = None, sucesso: str = None):
+    # Verifica se há sessão ativa (simulada por parâmetro simples ou cookie)
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "logado": False, 
+        "resultado": None, 
+        "erro": erro, 
+        "sucesso": sucesso
+    })
 
-@app.post("/", response_class=HTMLResponse)
+# Rota para processar o login
+@app.post("/auth/login", response_class=HTMLResponse)
+async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    hashed_pw = hash_password(password)
+    cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, hashed_pw))
+    user = cursor.fetchone()
+    conn.close()
+    
+    if not user:
+        return templates.TemplateResponse("index.html", {
+            "request": request, 
+            "logado": False, 
+            "resultado": None, 
+            "erro": "E-mail ou palavra-passe inválidos.", 
+            "sucesso": None
+        })
+    
+    # Login bem-sucedido: exibe a página da ferramenta com o banner e informações
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "logado": True, 
+        "email_utilizador": email,
+        "resultado": None, 
+        "erro": None
+    })
+
+# Rota para registar novo utilizador
+@app.post("/auth/register", response_class=HTMLResponse)
+async def register(request: Request, email: str = Form(...), password: str = Form(...)):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        hashed_pw = hash_password(password)
+        cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, hashed_pw))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        return templates.TemplateResponse("index.html", {
+            "request": request, 
+            "logado": False, 
+            "resultado": None, 
+            "erro": "Este e-mail já está registado.", 
+            "sucesso": None
+        })
+    finally:
+        conn.close()
+    
+    return templates.TemplateResponse("index.html", {
+        "request": request, 
+        "logado": False, 
+        "resultado": None, 
+        "erro": None, 
+        "sucesso": "Conta criada com sucesso! Faça login abaixo."
+    })
+
+# Rota para calcular os preços (dentro da área logada)
+@app.post("/calcular", response_class=HTMLResponse)
 async def calcular(
     request: Request,
+    email: str = Form(...),
     custo_produto: float = Form(...),
     frete: float = Form(...),
     taxa_maquininha: float = Form(...),
@@ -52,7 +116,7 @@ async def calcular(
 
         divisor = 1 - (taxa_decimal + margem_decimal)
         if divisor <= 0:
-            raise ValueError("A soma da taxa da maquininha e da margem desejada não pode ser igual ou superior a 100%.")
+            raise ValueError("A soma da taxa da maquininha e da margem desejada não pode atingir ou superar 100%.")
 
         preco_venda_ideal = custo_total / divisor
         valor_taxa = preco_venda_ideal * taxa_decimal
@@ -64,37 +128,20 @@ async def calcular(
             "lucro_liquido": f"R$ {lucro_liquido:.2f}"
         }
 
-        return templates.TemplateResponse("index.html", {"request": request, "resultado": resultado, "erro": None})
+        return templates.TemplateResponse("index.html", {
+            "request": request, 
+            "logado": True, 
+            "email_utilizador": email,
+            "resultado": resultado, 
+            "erro": None
+        })
     
     except ValueError as e:
-        return templates.TemplateResponse("index.html", {"request": request, "resultado": None, "erro": str(e)})
-
-# Rotas de Autenticação (Registo e Login)
-@app.post("/auth/register")
-async def register(email: str = Form(...), password: str = Form(...)):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    try:
-        hashed_pw = hash_password(password)
-        cursor.execute("INSERT INTO users (email, password, verified) VALUES (?, ?, 1)", (email, hashed_pw))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        return RedirectResponse(url="/?erro=email_existente", status_code=status.HTTP_303_SEE_OTHER)
-    finally:
-        conn.close()
-    return RedirectResponse(url="/?sucesso=registado", status_code=status.HTTP_303_SEE_OTHER)
-
-@app.post("/auth/login")
-async def login(email: str = Form(...), password: str = Form(...)):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    hashed_pw = hash_password(password)
-    cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, hashed_pw))
-    user = cursor.fetchone()
-    conn.close()
-    
-    if not user:
-        return RedirectResponse(url="/?erro=credenciais_invalidas", status_code=status.HTTP_303_SEE_OTHER)
-    
-    return RedirectResponse(url="/?sucesso=login", status_code=status.HTTP_303_SEE_OTHER)
-    
+        return templates.TemplateResponse("index.html", {
+            "request": request, 
+            "logado": True, 
+            "email_utilizador": email,
+            "resultado": None, 
+            "erro": str(e)
+        })
+        
