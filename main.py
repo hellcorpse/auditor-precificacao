@@ -7,14 +7,14 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# URL de Conexão Oficial via Supabase Pooler
+# URL de Conexão do Supabase
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql://postgres.jfqbkdbirwkchejlaohg:Q3p4hXkwbN9fTIB6@aws-0-sa-east-1.pooler.supabase.co:6543/postgres"
+    "postgresql://postgres:Q3p4hXkwbN9fTIB6@db.jfqbkdbirwkchejlaohg.supabase.co:5432/postgres"
 )
 
 def get_db_connection():
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     return conn
 
 # Inicializar Tabelas na Nuvem (Supabase)
