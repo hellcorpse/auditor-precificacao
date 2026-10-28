@@ -1,62 +1,29 @@
 import os
-import psycopg2
 from fastapi import FastAPI, Request, Form, Response, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from supabase import create_client, Client
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# URL de Conexão Oficial via Supabase Pooler (Porta 6543 para IPv4 no Render)
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", 
-    "postgresql://postgres.jfqbkdbirwkchejlaohg:Q3p4hXkwbN9fTIB6@aws-0-sa-east-1.pooler.supabase.com:6543/postgres"
-)
+# Configuração Oficial do Cliente Supabase via HTTPS (Porta 443)
+SUPABASE_URL = "https://jfqbkdbirwkchejlaohg.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWJrZGJpcndrY2hlaWpsb2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzc3MzAsImV4cCI6MjEwODc1MzczMH0.emxXE8DIItb0GG3U6ZPdbUqxkxjQ3Ad1QAiBE9Vv7Hw"
 
-def get_db_connection():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Inicializar Tabelas na Nuvem (Supabase)
+# Garantir utilizador Administrador padrão na inicialização
 def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Tabela de Utilizadores
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS utilizadores (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
-        )
-    """)
-    
-    # Tabela de Histórico de Cálculos
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS historico (
-            id SERIAL PRIMARY KEY,
-            email TEXT NOT NULL,
-            produto TEXT NOT NULL,
-            custo_total REAL NOT NULL,
-            preco_venda REAL NOT NULL,
-            lucro_liquido REAL NOT NULL,
-            data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    conn.commit()
-    
-    # Criar utilizador Administrador/PRO padrão se não existir
-    cursor.execute("SELECT * FROM utilizadores WHERE email = %s", ("admin@teste.com",))
-    if not cursor.fetchone():
-        cursor.execute(
-            "INSERT INTO utilizadores (email, password) VALUES (%s, %s)",
-            ("admin@teste.com", "123456")
-        )
-        conn.commit()
-        
-    cursor.close()
-    conn.close()
+    try:
+        res = supabase.table("utilizadores").select("*").eq("email", "admin@teste.com").execute()
+        if not res.data:
+            supabase.table("utilizadores").insert({
+                "email": "admin@teste.com",
+                "password": "123456"
+            }).execute()
+    except Exception as e:
+        print(f"Aviso na inicialização: {e}")
 
 init_db()
 
@@ -73,15 +40,11 @@ def index(request: Request, user_session: str = Cookie(None)):
         if email_utilizador == "admin@teste.com":
             is_pro = True
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT produto, custo_total, preco_venda, lucro_liquido, TO_CHAR(data_criacao, 'YYYY-MM-DD HH24:MI:SS') FROM historico WHERE email = %s ORDER BY id DESC",
-            (email_utilizador,)
-        )
-        historico = cursor.fetchall()
-        cursor.close()
-        conn.close()
+        try:
+            res = supabase.table("historico").select("*").eq("email", email_utilizador).order("id", desc=True).execute()
+            historico = [[row["produto"], row["custo_total"], row["preco_venda"], row["lucro_liquido"], row.get("data_criacao", "")] for row in res.data]
+        except Exception:
+            historico = []
 
     return templates.TemplateResponse("index.html", {
         "request": request,
@@ -96,16 +59,18 @@ def index(request: Request, user_session: str = Cookie(None)):
 
 @app.post("/auth/register", response_class=HTMLResponse)
 def register(request: Request, email: str = Form(...), password: str = Form(...)):
-    conn = get_db_connection()
-    cursor = conn.cursor()
     try:
-        cursor.execute(
-            "INSERT INTO utilizadores (email, password) VALUES (%s, %s)",
-            (email, password)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        existente = supabase.table("utilizadores").select("*").eq("email", email).execute()
+        if existente.data:
+            return templates.TemplateResponse("index.html", {
+                "request": request,
+                "logado": False,
+                "is_pro": False,
+                "erro": "Este e-mail já está registado.",
+                "sucesso": ""
+            })
+        
+        supabase.table("utilizadores").insert({"email": email, "password": password}).execute()
         return templates.TemplateResponse("index.html", {
             "request": request,
             "logado": False,
@@ -114,41 +79,32 @@ def register(request: Request, email: str = Form(...), password: str = Form(...)
             "erro": ""
         })
     except Exception:
-        conn.rollback()
-        cursor.close()
-        conn.close()
         return templates.TemplateResponse("index.html", {
             "request": request,
             "logado": False,
             "is_pro": False,
-            "erro": "Este e-mail já está registado.",
+            "erro": "Erro ao criar conta. Tente novamente.",
             "sucesso": ""
         })
 
 @app.post("/auth/login", response_class=HTMLResponse)
 def login(request: Request, email: str = Form(...), password: str = Form(...)):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT * FROM utilizadores WHERE email = %s AND password = %s",
-        (email, password)
-    )
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
+    try:
+        res = supabase.table("utilizadores").select("*").eq("email", email).eq("password", password).execute()
+        if res.data:
+            response = RedirectResponse(url="/", status_code=303)
+            response.set_cookie(key="user_session", value=email)
+            return response
+    except Exception:
+        pass
 
-    if user:
-        response = RedirectResponse(url="/", status_code=303)
-        response.set_cookie(key="user_session", value=email)
-        return response
-    else:
-        return templates.TemplateResponse("index.html", {
-            "request": request,
-            "logado": False,
-            "is_pro": False,
-            "erro": "E-mail ou palavra-passe incorretos.",
-            "sucesso": ""
-        })
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "logado": False,
+        "is_pro": False,
+        "erro": "E-mail ou palavra-passe incorretos.",
+        "sucesso": ""
+    })
 
 @app.post("/calcular", response_class=HTMLResponse)
 def calcular(
@@ -174,25 +130,23 @@ def calcular(
     is_pro = (email == "admin@teste.com")
 
     if is_pro:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO historico (email, produto, custo_total, preco_venda, lucro_liquido) VALUES (%s, %s, %s, %s, %s)",
-            (email, produto, custo_total, preco_venda_ideal, lucro_liquido)
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        try:
+            supabase.table("historico").insert({
+                "email": email,
+                "produto": produto,
+                "custo_total": custo_total,
+                "preco_venda": preco_venda_ideal,
+                "lucro_liquido": lucro_liquido
+            }).execute()
+        except Exception:
+            pass
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT produto, custo_total, preco_venda, lucro_liquido, TO_CHAR(data_criacao, 'YYYY-MM-DD HH24:MI:SS') FROM historico WHERE email = %s ORDER BY id DESC",
-        (email,)
-    )
-    historico = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    historico = []
+    try:
+        res = supabase.table("historico").select("*").eq("email", email).order("id", desc=True).execute()
+        historico = [[row["produto"], row["custo_total"], row["preco_venda"], row["lucro_liquido"], row.get("data_criacao", "")] for row in res.data]
+    except Exception:
+        pass
 
     resultado_dict = {
         "custo_total": f"R$ {custo_total:.2f}",
