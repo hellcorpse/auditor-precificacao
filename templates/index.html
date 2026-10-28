@@ -51,11 +51,11 @@
         </div>
         {% endif %}
 
-        <!-- CONDIÇÃO 1: SE NÃO ESTIVER LOGADO (Exibe Tela de Login/Registo + Informações Estratégicas) -->
+        <!-- CONDIÇÃO 1: SE NÃO ESTIVER LOGADO -->
         {% if not logado %}
         <div class="p-6 md:p-8 space-y-8">
             
-            <!-- Secção Informativa: Para quem é recomendada? -->
+            <!-- Informações Estratégicas -->
             <div class="bg-indigo-50 dark:bg-slate-950/60 border border-indigo-100 dark:border-slate-800 p-6 rounded-2xl space-y-3">
                 <h3 class="font-bold text-indigo-600 dark:text-indigo-400 text-base flex items-center space-x-2">
                     <span>💡</span><span>Para quem é recomendada esta ferramenta?</span>
@@ -70,7 +70,7 @@
                 </ul>
             </div>
 
-            <!-- Abas de Alternância: Entrar vs Criar Conta -->
+            <!-- Abas de Alternância -->
             <div class="space-y-4">
                 <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl">
                     <button onclick="switchAuth('login')" id="btn-login-tab" class="flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition">Aceder à Conta</button>
@@ -85,8 +85,23 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Palavra-passe</label>
-                        <input type="password" name="password" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="••••••••">
+                        <div class="relative">
+                            <input type="password" id="login-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="••••••••">
+                            <button type="button" onclick="togglePassword('login-password', 'eye-login')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <svg id="eye-login" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
                     </div>
+                    
+                    <!-- Caixa de Lembrar-me e Recuperação -->
+                    <div class="flex justify-between items-center text-xs">
+                        <label class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 cursor-pointer">
+                            <input type="checkbox" name="lembrar" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500">
+                            <span>Lembrar-me</span>
+                        </label>
+                        <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:underline">Esqueceu a palavra-passe?</a>
+                    </div>
+
                     <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">Entrar na Ferramenta</button>
                 </form>
 
@@ -98,7 +113,12 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Criar Palavra-passe</label>
-                        <input type="password" name="password" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
+                        <div class="relative">
+                            <input type="password" id="reg-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
+                            <button type="button" onclick="togglePassword('reg-password', 'eye-reg')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <svg id="eye-reg" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Criar Conta Gratuitamente</button>
                 </form>
@@ -106,7 +126,7 @@
         </div>
         {% endif %}
 
-        <!-- CONDIÇÃO 2: SE ESTIVER LOGADO (Exibe a Ferramenta / Calculadora Protegida) -->
+        <!-- CONDIÇÃO 2: SE ESTIVER LOGADO -->
         {% if logado %}
         <div class="p-6 md:p-8 space-y-6">
             <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
@@ -114,7 +134,9 @@
                     <span class="text-xs text-slate-400 block">Sessão iniciada como:</span>
                     <strong class="text-sm text-indigo-600 dark:text-indigo-400">{{ email_utilizador }}</strong>
                 </div>
-                <a href="/" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 font-semibold px-3 py-1.5 rounded-lg transition">Terminar Sessão</a>
+                <a href="/" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold px-3 py-2 rounded-lg transition flex items-center space-x-1">
+                    <span>🚪</span><span>Terminar Sessão</span>
+                </a>
             </div>
 
             <form action="/calcular" method="POST" class="space-y-4">
@@ -177,7 +199,7 @@
         </div>
     </div>
 
-    <!-- Scripts de Tema e Alternância -->
+    <!-- Scripts de Interatividade -->
     <script>
         const htmlElement = document.documentElement;
         const thumb = document.getElementById('theme-switch-thumb');
@@ -211,6 +233,19 @@
             htmlElement.classList.remove('dark');
         }
         updateThemeUI();
+
+        // Alternância da visibilidade da senha (Olhinho)
+        function togglePassword(fieldId, iconId) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
+            } else {
+                passwordField.type = 'password';
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+            }
+        }
 
         function switchAuth(mode) {
             const btnLoginTab = document.getElementById('btn-login-tab');
