@@ -21,7 +21,7 @@ def init_db():
         )
     ''')
     
-    # Inserir o Login Mestre Automático com a sua senha segura personalizada
+    # Inserir o Login Mestre Automático
     master_email = "admin@teste.com"
     master_pass = hashlib.sha256("@Leagueoflegens0".encode()).hexdigest()
     cursor.execute("INSERT OR IGNORE INTO users (email, password, verified) VALUES (?, ?, 1)", (master_email, master_pass))
@@ -45,7 +45,7 @@ async def home(request: Request, erro: str = None, sucesso: str = None):
     })
 
 @app.post("/auth/login", response_class=HTMLResponse)
-async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+async def login(request: Request, email: str = Form(...), password: str = Form(...), lembrar: str = Form(None)):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
     hashed_pw = hash_password(password)
@@ -58,7 +58,7 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             "request": request, 
             "logado": False, 
             "resultado": None, 
-            "erro": "E-mail ou palavra-passe inválidos. (Dica: use admin@teste.com)", 
+            "erro": "E-mail ou palavra-passe incorretos.", 
             "sucesso": None
         })
     
