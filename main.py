@@ -7,7 +7,7 @@ from supabase import create_client, Client
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# Configuração Oficial e Direta do Supabase
+# Configuração Oficial e Direta do Supabase no Código
 SUPABASE_URL = "https://jfqbkdbirwkchejlaohg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWJrZGJpcndrY2hlaWpsb2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzc3MzAsImV4cCI6MjEwODc1MzczMH0.emxXE8DIItb0GG3U6ZPdbUqxkxjQ3Ad1QAiBE9Vv7Hw"
 
@@ -164,4 +164,3 @@ def logout():
     response = RedirectResponse(url="/", status_code=303)
     response.delete_cookie(key="user_session")
     return response
-    
