@@ -1,206 +1,219 @@
-from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
+import os
+import psycopg2
+from fastapi import FastAPI, Request, Form, Response, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-import sqlite3
-import hashlib
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-DB_NAME = "database.db"
+# URL de Conexão Oficial do Supabase (PostgreSQL)
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", 
+    "postgresql://postgres:Q3p4hXkwbN9fTIB6@db.jfqb-kdbirwkchejlaohg.supabase.co:5432/postgres"
+)
 
+def get_db_connection():
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
+
+# Inicializar Tabelas na Nuvem (Supabase)
 def init_db():
-    conn = sqlite3.connect(DB_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Tabela de Utilizadores (com campo is_pro para a versão paga)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+    # Tabela de Utilizadores
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS utilizadores (
+            id SERIAL PRIMARY KEY,
             email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            is_pro INTEGER DEFAULT 0,
-            verified INTEGER DEFAULT 1
+            password TEXT NOT NULL
         )
-    ''')
+    """)
     
-    # Tabela de Histórico de Cálculos (Versão Paga)
-    cursor.execute('''
+    # Tabela de Histórico de Cálculos
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS historico (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             email TEXT NOT NULL,
-            produto TEXT,
-            custo_total REAL,
-            preco_venda REAL,
-            lucro_liquido REAL,
+            produto TEXT NOT NULL,
+            custo_total REAL NOT NULL,
+            preco_venda REAL NOT NULL,
+            lucro_liquido REAL NOT NULL,
             data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-    ''')
-    
-    # Inserir o Login Mestre Automático (já como PRO para testes)
-    master_email = "admin@teste.com"
-    master_pass = hashlib.sha256("@Leagueoflegens0".encode()).hexdigest()
-    cursor.execute("INSERT OR IGNORE INTO users (email, password, is_pro, verified) VALUES (?, ?, 1, 1)", (master_email, master_pass))
+    """)
     
     conn.commit()
+    
+    # Criar utilizador Administrador/PRO padrão se não existir
+    cursor.execute("SELECT * FROM utilizadores WHERE email = %s", ("admin@teste.com",))
+    if not cursor.fetchone():
+        cursor.execute(
+            "INSERT INTO utilizadores (email, password) VALUES (%s, %s)",
+            ("admin@teste.com", "123456")
+        )
+        conn.commit()
+        
+    cursor.close()
     conn.close()
 
 init_db()
 
-def hash_password(password: str):
-    return hashlib.sha256(password.encode()).hexdigest()
-
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request, erro: str = None, sucesso: str = None):
-    return templates.TemplateResponse("index.html", {
-        "request": request, 
-        "logado": False, 
-        "is_pro": False,
-        "historico": [],
-        "resultado": None, 
-        "erro": erro, 
-        "sucesso": sucesso
-    })
-
-@app.post("/auth/login", response_class=HTMLResponse)
-async def login(request: Request, email: str = Form(...), password: str = Form(...)):
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    hashed_pw = hash_password(password)
-    cursor.execute("SELECT email, is_pro FROM users WHERE email = ? AND password = ?", (email, hashed_pw))
-    user = cursor.fetchone()
-    
-    if not user:
-        conn.close()
-        return templates.TemplateResponse("index.html", {
-            "request": request, 
-            "logado": False, 
-            "resultado": None, 
-            "erro": "E-mail ou palavra-passe incorretos.", 
-            "sucesso": None
-        })
-    
-    email_utilizador = user[0]
-    is_pro = bool(user[1])
-    
-    # Buscar histórico do utilizador se for PRO
+def index(request: Request, user_session: str = Cookie(None)):
+    logado = False
+    is_pro = False
+    email_utilizador = ""
     historico = []
-    if is_pro:
-        cursor.execute("SELECT produto, custo_total, preco_venda, lucro_liquido, data_criacao FROM historico WHERE email = ? ORDER BY id DESC LIMIT 10", (email_utilizador,))
+
+    if user_session:
+        logado = True
+        email_utilizador = user_session
+        if email_utilizador == "admin@teste.com":
+            is_pro = True
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT produto, custo_total, preco_venda, lucro_liquido, TO_CHAR(data_criacao, 'YYYY-MM-DD HH24:MI:SS') FROM historico WHERE email = %s ORDER BY id DESC",
+            (email_utilizador,)
+        )
         historico = cursor.fetchall()
-        
-    conn.close()
-    
+        cursor.close()
+        conn.close()
+
     return templates.TemplateResponse("index.html", {
-        "request": request, 
-        "logado": True, 
-        "email_utilizador": email_utilizador,
+        "request": request,
+        "logado": logado,
         "is_pro": is_pro,
+        "email_utilizador": email_utilizador,
         "historico": historico,
-        "resultado": None, 
-        "erro": None
+        "resultado": None,
+        "erro": "",
+        "sucesso": ""
     })
 
 @app.post("/auth/register", response_class=HTMLResponse)
-async def register(request: Request, email: str = Form(...), password: str = Form(...)):
-    conn = sqlite3.connect(DB_NAME)
+def register(request: Request, email: str = Form(...), password: str = Form(...)):
+    conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        hashed_pw = hash_password(password)
-        cursor.execute("INSERT INTO users (email, password, is_pro) VALUES (?, ?, 0)", (email, hashed_pw))
+        cursor.execute(
+            "INSERT INTO utilizadores (email, password) VALUES (%s, %s)",
+            (email, password)
+        )
         conn.commit()
-    except sqlite3.IntegrityError:
-        return templates.TemplateResponse("index.html", {
-            "request": request, 
-            "logado": False, 
-            "resultado": None, 
-            "erro": "Este e-mail já está registado.", 
-            "sucesso": None
-        })
-    finally:
+        cursor.close()
         conn.close()
-    
-    return templates.TemplateResponse("index.html", {
-        "request": request, 
-        "logado": False, 
-        "resultado": None, 
-        "erro": None, 
-        "sucesso": "Conta criada com sucesso! Faça login abaixo."
-    })
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "logado": False,
+            "is_pro": False,
+            "sucesso": "Conta criada com sucesso! Faça login abaixo.",
+            "erro": ""
+        })
+    except Exception:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "logado": False,
+            "is_pro": False,
+            "erro": "Este e-mail já está registado.",
+            "sucesso": ""
+        })
+
+@app.post("/auth/login", response_class=HTMLResponse)
+def login(request: Request, email: str = Form(...), password: str = Form(...)):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT * FROM utilizadores WHERE email = %s AND password = %s",
+        (email, password)
+    )
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if user:
+        response = RedirectResponse(url="/", status_code=303)
+        response.set_cookie(key="user_session", value=email)
+        return response
+    else:
+        return templates.TemplateResponse("index.html", {
+            "request": request,
+            "logado": False,
+            "is_pro": False,
+            "erro": "E-mail ou palavra-passe incorretos.",
+            "sucesso": ""
+        })
 
 @app.post("/calcular", response_class=HTMLResponse)
-async def calcular(
+def calcular(
     request: Request,
     email: str = Form(...),
-    produto: str = Form("Produto Geral"),
+    produto: str = Form(...),
     custo_produto: float = Form(...),
     frete: float = Form(...),
     taxa_maquininha: float = Form(...),
     margem_desejada: float = Form(...)
 ):
-    conn = sqlite3.connect(DB_NAME)
+    custo_total = custo_produto + frete
+    fator_taxas = 1 - ((taxa_maquininha + margem_desejada) / 100)
+    
+    if fator_taxas <= 0:
+        preco_venda_ideal = custo_total * 2
+    else:
+        preco_venda_ideal = custo_total / fator_taxas
+
+    comissao_cartao_val = preco_venda_ideal * (taxa_maquininha / 100)
+    lucro_liquido = preco_venda_ideal - custo_total - comissao_cartao_val
+
+    is_pro = (email == "admin@teste.com")
+
+    if is_pro:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO historico (email, produto, custo_total, preco_venda, lucro_liquido) VALUES (%s, %s, %s, %s, %s)",
+            (email, produto, custo_total, preco_venda_ideal, lucro_liquido)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT is_pro FROM users WHERE email = ?", (email,))
-    user_row = cursor.fetchone()
-    is_pro = bool(user_row[0]) if user_row else False
+    cursor.execute(
+        "SELECT produto, custo_total, preco_venda, lucro_liquido, TO_CHAR(data_criacao, 'YYYY-MM-DD HH24:MI:SS') FROM historico WHERE email = %s ORDER BY id DESC",
+        (email,)
+    )
+    historico = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    resultado_dict = {
+        "custo_total": f"R$ {custo_total:.2f}",
+        "preco_venda_ideal": f"R$ {preco_venda_ideal:.2f}",
+        "lucro_liquido": f"R$ {lucro_liquido:.2f}"
+    }
+
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "logado": True,
+        "is_pro": is_pro,
+        "email_utilizador": email,
+        "historico": historico,
+        "resultado": resultado_dict,
+        "erro": "",
+        "sucesso": "Cálculo efetuado e salvo com sucesso!"
+    })
+
+@app.get("/logout")
+def logout():
+    response = RedirectResponse(url="/", status_code=303)
+    response.delete_cookie(key="user_session")
+    return response
     
-    try:
-        if custo_produto <= 0 or frete < 0 or taxa_maquininha < 0 or margem_desejada < 0:
-            raise ValueError("Os valores devem ser positivos.")
-
-        custo_total = custo_produto + frete
-        taxa_decimal = taxa_maquininha / 100.0
-        margem_decimal = margem_desejada / 100.0
-
-        divisor = 1 - (taxa_decimal + margem_decimal)
-        if divisor <= 0:
-            raise ValueError("A soma da taxa da maquininha e da margem desejada não pode atingir ou superar 100%.")
-
-        preco_venda_ideal = custo_total / divisor
-        valor_taxa = preco_venda_ideal * taxa_decimal
-        lucro_liquido = preco_venda_ideal - (custo_total + valor_taxa)
-
-        # Se for PRO, guarda automaticamente no histórico
-        if is_pro:
-            cursor.execute(
-                "INSERT INTO historico (email, produto, custo_total, preco_venda, lucro_liquido) VALUES (?, ?, ?, ?, ?)",
-                (email, produto, custo_total, preco_venda_ideal, lucro_liquido)
-            )
-            conn.commit()
-
-        # Atualizar histórico para exibir na tela
-        historico = []
-        if is_pro:
-            cursor.execute("SELECT produto, custo_total, preco_venda, lucro_liquido, data_criacao FROM historico WHERE email = ? ORDER BY id DESC LIMIT 10", (email,))
-            historico = cursor.fetchall()
-            
-        conn.close()
-
-        resultado = {
-            "custo_total": f"R$ {custo_total:.2f}",
-            "preco_venda_ideal": f"R$ {preco_venda_ideal:.2f}",
-            "lucro_liquido": f"R$ {lucro_liquido:.2f}"
-        }
-
-        return templates.TemplateResponse("index.html", {
-            "request": request, 
-            "logado": True, 
-            "email_utilizador": email,
-            "is_pro": is_pro,
-            "historico": historico,
-            "resultado": resultado, 
-            "erro": None
-        })
-    
-    except ValueError as e:
-        conn.close()
-        return templates.TemplateResponse("index.html", {
-            "request": request, 
-            "logado": True, 
-            "email_utilizador": email,
-            "is_pro": is_pro,
-            "historico": [],
-            "resultado": None, 
-            "erro": str(e)
-        })
-        
