@@ -1,62 +1,256 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auditor de Precificação</title>
-    <!-- Tailwind CSS para deixar o visual moderno e bonito no celular -->
+    <title>Auditor de Precificação Profissional</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-100 dark:bg-slate-950 min-h-screen flex flex-col items-center justify-center p-4 text-slate-800 dark:text-slate-100 transition-colors duration-300 font-sans">
 
-    <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-6">
-        <h1 class="text-2xl font-bold text-slate-800 text-center mb-2">Auditor de Preço</h1>
-        <p class="text-sm text-slate-500 text-center mb-6">Descubra seu lucro real e evite prejuízos.</p>
-
-        <!-- Formulário -->
-        <form action="/" method="POST" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-700">Custo do Produto (R$)</label>
-                <input type="number" step="0.01" name="custo_produto" required class="mt-1 w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ex: 50.00">
+    <!-- Container Principal -->
+    <div class="max-w-lg w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden transition-colors duration-300">
+        
+        <!-- Banner / Cabeçalho -->
+        <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-6 relative">
+            
+            <!-- Barra Superior: Indicador e Interruptor de Tema Estilo SENAI -->
+            <div class="flex justify-between items-center mb-4">
+                <span class="bg-white/20 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider text-white">Plataforma Profissional</span>
+                
+                <!-- Interruptor de Tema (Lâmpada / Lua) -->
+                <button onclick="toggleTheme()" class="flex items-center bg-black/30 hover:bg-black/40 p-1.5 rounded-full border border-white/20 transition-all shadow-inner" title="Alternar Tema Claro/Escuro">
+                    <div class="w-7 h-7 rounded-full bg-white text-slate-900 flex items-center justify-center shadow-md transform transition-transform duration-300" id="theme-switch-thumb">
+                        <!-- Ícone de Lâmpada (Modo Claro) -->
+                        <svg id="icon-light" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <!-- Ícone de Lua (Modo Escuro) -->
+                        <svg id="icon-dark" class="w-4 h-4 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path></svg>
+                    </div>
+                </button>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-700">Valor do Frete (R$)</label>
-                <input type="number" step="0.01" name="frete" required class="mt-1 w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ex: 10.00">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700">Taxa da Maquininha / Plataforma (%)</label>
-                <input type="number" step="0.01" name="taxa_maquininha" required class="mt-1 w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ex: 5.0">
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-slate-700">Margem de Lucro Desejada (%)</label>
-                <input type="number" step="0.01" name="margem_desejada" required class="mt-1 w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Ex: 30.0">
-            </div>
-
-            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold p-3 rounded-lg hover:bg-indigo-700 transition">
-                Calcular Preço Ideal
-            </button>
-        </form>
-
-        <!-- Exibição de Erro -->
-        {% if erro %}
-        <div class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
-            {{ erro }}
+            <h1 class="text-2xl font-extrabold text-white tracking-tight">Auditor de Precificação</h1>
+            <p class="text-indigo-100 text-sm mt-1">Proteja suas margens, taxas e garanta seu lucro real.</p>
         </div>
-        {% endif %}
 
-        <!-- Exibição do Resultado -->
-        {% if resultado %}
-        <div class="mt-6 p-4 bg-emerald-50 border border-emerald-300 rounded-lg space-y-2">
-            <h2 class="font-bold text-emerald-800 text-center">Diagnóstico Concluído</h2>
-            <p class="text-sm text-slate-700 flex justify-between"><span>Custo Total:</span> <span class="font-semibold">{{ resultado.custo_total }}</span></p>
-            <p class="text-sm text-slate-700 flex justify-between"><span>Preço de Venda Sugerido:</span> <span class="font-bold text-indigo-600 text-base">{{ resultado.preco_venda_ideal }}</span></p>
-            <p class="text-sm text-slate-700 flex justify-between"><span>Seu Lucro Líquido No Bolso:</span> <span class="font-bold text-emerald-600 text-base">{{ resultado.lucro_liquido }}</span></p>
+        <!-- Abas de Navegação (Calculadora vs Autenticação) -->
+        <div class="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+            <button onclick="switchTab('calc')" id="tab-calc" class="flex-1 py-3 text-sm font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 transition">Calculadora</button>
+            <button onclick="switchTab('auth')" id="tab-auth" class="flex-1 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 transition">Minha Conta / Acesso</button>
         </div>
-        {% endif %}
+
+        <!-- Conteúdo da Aba: Calculadora -->
+        <div id="content-calc" class="p-6 md:p-8">
+            <form action="/" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Custo do Produto (R$)</label>
+                    <input type="number" step="0.01" name="custo_produto" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 50.00">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Valor do Frete (R$)</label>
+                    <input type="number" step="0.01" name="frete" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 10.00">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Taxa da Maquininha (%)</label>
+                        <input type="number" step="0.01" name="taxa_maquininha" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 5.0">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Margem Desejada (%)</label>
+                        <input type="number" step="0.01" name="margem_desejada" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 30.0">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition-all transform active:scale-95">
+                    Calcular Preço Ideal
+                </button>
+            </form>
+
+            {% if erro %}
+            <div class="mt-6 p-4 bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400 rounded-xl text-sm flex items-center space-x-2">
+                <span>⚠️</span>
+                <span>{{ erro }}</span>
+            </div>
+            {% endif %}
+
+            {% if resultado %}
+            <div class="mt-6 p-5 bg-slate-50 dark:bg-slate-950/80 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl space-y-3 relative overflow-hidden shadow-inner">
+                <div class="absolute top-0 right-0 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Análise Concluída</div>
+                <h2 class="font-bold text-emerald-600 dark:text-emerald-400 text-base mb-2">📊 Relatório de Precificação</h2>
+                
+                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">Custo Total Operacional:</span> 
+                    <span class="font-semibold text-slate-700 dark:text-slate-200">{{ resultado.custo_total }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">Preço de Venda Sugerido:</span> 
+                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ resultado.preco_venda_ideal }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm pt-1">
+                    <span class="text-slate-500 dark:text-slate-400">Lucro Líquido Real:</span> 
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 text-lg">{{ resultado.lucro_liquido }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Conteúdo da Aba: Autenticação (Login / Cadastro / Social) -->
+        <div id="content-auth" class="p-6 md:p-8 hidden space-y-6">
+            
+            <!-- Botões de Login Social -->
+            <div class="space-y-3">
+                <button class="w-full flex items-center justify-center space-x-3 p-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-750 transition text-sm font-semibold">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    <span>Entrar com o Google</span>
+                </button>
+
+                <button class="w-full flex items-center justify-center space-x-3 p-3 bg-[#1877F2] text-white rounded-xl hover:bg-[#166fe5] transition text-sm font-semibold shadow-md">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <span>Entrar com o Facebook</span>
+                </button>
+            </div>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-300 dark:border-slate-800"></div>
+                <span class="flex-shrink mx-4 text-xs text-slate-400 uppercase tracking-wider">ou acesse manualmente</span>
+                <div class="flex-grow border-t border-slate-300 dark:border-slate-800"></div>
+            </div>
+
+            <!-- Alternar entre Formulário de Login e Registo -->
+            <div class="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl">
+                <button onclick="switchAuthMode('login')" id="subtab-login" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition">Entrar</button>
+                <button onclick="switchAuthMode('register')" id="subtab-register" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition">Criar Conta</button>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form id="form-login" action="/auth/login" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail</label>
+                    <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Palavra-passe</label>
+                    <input type="password" name="password" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="••••••••">
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <label class="flex items-center space-x-2 text-slate-500 dark:text-slate-400"><input type="checkbox" class="rounded"> <span>Lembrar-me</span></label>
+                    <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:underline">Esqueceu a palavra-passe?</a>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Aceder à Conta</button>
+            </form>
+
+            <!-- Formulário de Registo -->
+            <form id="form-register" action="/auth/register" method="POST" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail para Registo</label>
+                    <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Criar Palavra-passe</label>
+                    <input type="password" name="password" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
+                </div>
+                <p class="text-[11px] text-slate-400">Ao registar-se, será enviada uma confirmação para o seu e-mail para ativar a segurança da conta.</p>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Criar Nova Conta</button>
+            </form>
+        </div>
+
+        <!-- Rodapé Profissional -->
+        <div class="bg-slate-50 dark:bg-slate-950/50 py-3 px-6 text-center border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500">
+            Auditor de Precificação &copy; 2026 — Alta Performance & Segurança
+        </div>
     </div>
 
+    <!-- Scripts de Interatividade -->
+    <script>
+        const htmlElement = document.documentElement;
+        const thumb = document.getElementById('theme-switch-thumb');
+        const iconLight = document.getElementById('icon-light');
+        const iconDark = document.getElementById('icon-dark');
+
+        function updateThemeUI() {
+            if (htmlElement.classList.contains('dark')) {
+                thumb.style.transform = 'translateX(16px)';
+                iconLight.classList.add('hidden');
+                iconDark.classList.remove('hidden');
+            } else {
+                thumb.style.transform = 'translateX(0px)';
+                iconLight.classList.remove('hidden');
+                iconDark.classList.add('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeUI();
+        }
+
+        if (localStorage.getItem('theme') === 'light') {
+            htmlElement.classList.remove('dark');
+        }
+        updateThemeUI();
+
+        // Alternância de Abas principais
+        function switchTab(tab) {
+            const calcTab = document.getElementById('tab-calc');
+            const authTab = document.getElementById('tab-auth');
+            const calcContent = document.getElementById('content-calc');
+            const authContent = document.getElementById('content-auth');
+
+            if (tab === 'calc') {
+                calcTab.className = "flex-1 py-3 text-sm font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 transition";
+                authTab.className = "flex-1 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 transition";
+                calcContent.classList.remove('hidden');
+                authContent.classList.add('hidden');
+            } else {
+                authTab.className = "flex-1 py-3 text-sm font-semibold text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 transition";
+                calcTab.className = "flex-1 py-3 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-700 transition";
+                authContent.classList.remove('hidden');
+                calcContent.classList.add('hidden');
+            }
+        }
+
+        // Alternância entre Login e Registo manual
+        function switchAuthMode(mode) {
+            const btnLogin = document.getElementById('subtab-login');
+            const btnRegister = document.getElementById('subtab-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+
+            if (mode === 'login') {
+                btnLogin.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition";
+                btnRegister.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
+                formLogin.classList.remove('hidden');
+                formRegister.classList.add('hidden');
+            } else {
+                btnRegister.className = "flex-1 py-2 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-emerald-600 dark:text-emerald-400 transition";
+                btnLogin.className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
+                formRegister.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
