@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
@@ -220,4 +221,101 @@
 
             {% if resultado %}
             <div class="mt-6 p-5 bg-slate-50 dark:bg-slate-950/80 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl space-y-3 relative overflow-hidden shadow-inner">
-                <div class="absolute top-0 right-0 bg-emerald-500/20 text-emerald-600 dark:
+                <div class="absolute top-0 right-0 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Análise Concluída</div>
+                
+                <h2 class="font-bold text-emerald-600 dark:text-emerald-400 text-base mb-2">📊 Relatório de Precificação</h2>
+                
+                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">Custo Total Operacional:</span> 
+                    <span class="font-semibold text-slate-700 dark:text-slate-200">{{ resultado.custo_total }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
+                    <span class="text-slate-500 dark:text-slate-400">Preço de Venda Sugerido:</span> 
+                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ resultado.preco_venda_ideal }}</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm pt-1">
+                    <span class="text-slate-500 dark:text-slate-400">Lucro Líquido Real:</span> 
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400 text-lg">{{ resultado.lucro_liquido }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Rodapé Profissional -->
+        <div class="bg-slate-50 dark:bg-slate-950/50 py-3 px-6 text-center border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500">
+            Auditor de Precificação &copy; 2026 — Alta Performance & Segurança Corporativa
+        </div>
+    </div>
+
+    <!-- Scripts de Interatividade -->
+    <script>
+        const htmlElement = document.documentElement;
+        const thumb = document.getElementById('theme-switch-thumb');
+        const iconLight = document.getElementById('icon-light');
+        const iconDark = document.getElementById('icon-dark');
+
+        function updateThemeUI() {
+            if (htmlElement.classList.contains('dark')) {
+                thumb.style.transform = 'translateX(16px)';
+                iconLight.classList.add('hidden');
+                iconDark.classList.remove('hidden');
+            } else {
+                thumb.style.transform = 'translateX(0px)';
+                iconLight.classList.remove('hidden');
+                iconDark.classList.add('hidden');
+            }
+        }
+
+        function toggleTheme() {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+            updateThemeUI();
+        }
+
+        if (localStorage.getItem('theme') === 'light') {
+            htmlElement.classList.remove('dark');
+        }
+        updateThemeUI();
+
+        // Alternância da visibilidade da senha (Olhinho)
+        function togglePassword(fieldId, iconId) {
+            const passwordField = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
+            } else {
+                passwordField.type = 'password';
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+            }
+        }
+
+        function switchAuth(mode) {
+            const btnLoginTab = document.getElementById('btn-login-tab');
+            const btnRegTab = document.getElementById('btn-reg-tab');
+            const formLoginBox = document.getElementById('form-login-box');
+            const formRegBox = document.getElementById('form-reg-box');
+
+            if (mode === 'login') {
+                btnLoginTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition";
+                btnRegTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
+                formLoginBox.classList.remove('hidden');
+                formRegBox.classList.add('hidden');
+            } else {
+                btnRegTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-emerald-600 dark:text-emerald-400 transition";
+                btnLoginTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
+                formRegBox.classList.remove('hidden');
+                formLoginBox.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
