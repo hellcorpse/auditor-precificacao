@@ -7,25 +7,11 @@ from supabase import create_client, Client
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# Configuração Oficial e Direta do Supabase no Código
+# Configuração do Supabase
 SUPABASE_URL = "https://jfqbkdbirwkchejlaohg.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmcWJrZGJpcndrY2hlaWpsb2hnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzc3MzAsImV4cCI6MjEwODc1MzczMH0.emxXE8DIItb0GG3U6ZPdbUqxkxjQ3Ad1QAiBE9Vv7Hw"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# Garantir utilizador Administrador padrão na inicialização
-def init_db():
-    try:
-        res = supabase.table("utilizadores").select("*").eq("email", "admin@teste.com").execute()
-        if not res.data:
-            supabase.table("utilizadores").insert({
-                "email": "admin@teste.com",
-                "password": "123456"
-            }).execute()
-    except Exception as e:
-        print(f"Aviso na inicialização: {e}")
-
-init_db()
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request, user_session: str = Cookie(None)):
@@ -75,11 +61,11 @@ def register(request: Request, email: str = Form(...), password: str = Form(...)
             "sucesso": "Conta criada com sucesso! Faça login abaixo.",
             "erro": ""
         })
-    except Exception:
+    except Exception as e:
         return templates.TemplateResponse(request, "index.html", {
             "logado": False,
             "is_pro": False,
-            "erro": "Erro ao criar conta. Tente novamente.",
+            "erro": f"Erro ao criar conta: {str(e)}",
             "sucesso": ""
         })
 
@@ -91,13 +77,13 @@ def login(request: Request, email: str = Form(...), password: str = Form(...)):
             response = RedirectResponse(url="/", status_code=303)
             response.set_cookie(key="user_session", value=email)
             return response
-    except Exception:
+    except Exception as e:
         pass
 
     return templates.TemplateResponse(request, "index.html", {
         "logado": False,
         "is_pro": False,
-        "erro": "E-mail ou palavra-passe incorretos.",
+        "erro": "E-mail ou palavra-passe incorretos ou erro de ligação.",
         "sucesso": ""
     })
 
@@ -156,7 +142,7 @@ def calcular(
         "historico": historico,
         "resultado": resultado_dict,
         "erro": "",
-        "sucesso": "Cálculo efetuado e salvo com sucesso!"
+        "sucesso": "Cálculo efetuado com sucesso!"
     })
 
 @app.get("/logout")
