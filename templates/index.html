@@ -78,193 +78,43 @@
                 </div>
 
                 <!-- Formulário de Login -->
-                <form id="form-login-box" action="/auth/login" method="POST" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail</label>
-                        <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Palavra-passe</label>
-                        <div class="relative">
-                            <input type="password" id="login-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="••••••••">
-                            <button type="button" onclick="togglePassword('login-password', 'eye-login')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                <svg id="eye-login" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            </button>
-                        </div>
-                    </div>
+                <div id="form-login-box" class="space-y-4">
                     
-                    <!-- Caixa de Lembrar-me e Recuperação -->
-                    <div class="flex justify-between items-center text-xs">
-                        <label class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 cursor-pointer">
-                            <input type="checkbox" name="lembrar" class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500">
-                            <span>Lembrar-me</span>
-                        </label>
-                        <a href="#" class="text-indigo-600 dark:text-indigo-400 hover:underline">Esqueceu a palavra-passe?</a>
+                    <!-- Botões de Login Social (Google e Facebook) -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" onclick="alert('Login com Google em desenvolvimento')" class="flex items-center justify-center space-x-2 py-3 px-4 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/50 dark:hover:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition shadow-sm">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.15 21.32 7.21 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.39l4.09-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.21 0 3.15 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+                            <span>Google</span>
+                        </button>
+                        <button type="button" onclick="alert('Login com Facebook em desenvolvimento')" class="flex items-center justify-center space-x-2 py-3 px-4 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/50 dark:hover:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition shadow-sm">
+                            <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            <span>Facebook</span>
+                        </button>
                     </div>
 
-                    <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">Entrar na Ferramenta</button>
-                </form>
-
-                <!-- Formulário de Registo -->
-                <form id="form-reg-box" action="/auth/register" method="POST" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail de Registo</label>
-                        <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
+                    <div class="flex items-center my-4">
+                        <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                        <span class="px-3 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">ou com e-mail</span>
+                        <div class="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Criar Palavra-passe</label>
-                        <div class="relative">
-                            <input type="password" id="reg-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Mínimo 6 caracteres">
-                            <button type="button" onclick="togglePassword('reg-password', 'eye-reg')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                                <svg id="eye-reg" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            </button>
+
+                    <form action="/auth/login" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">E-mail</label>
+                            <input type="email" name="email" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="seu@email.com">
                         </div>
-                    </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3.5 rounded-xl shadow-lg transition">Criar Conta Gratuitamente</button>
-                </form>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- CONDIÇÃO 2: SE ESTIVER LOGADO -->
-        {% if logado %}
-        <div class="p-6 md:p-8 space-y-6">
-            <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-950/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
-                <div>
-                    <span class="text-xs text-slate-400 block">Sessão iniciada como:</span>
-                    <strong class="text-sm text-indigo-600 dark:text-indigo-400">{{ email_utilizador }}</strong>
-                </div>
-                <a href="/" class="text-xs bg-red-500/10 text-red-500 hover:bg-red-500/20 font-bold px-3 py-2 rounded-lg transition flex items-center space-x-1">
-                    <span>🚪</span><span>Terminar Sessão</span>
-                </a>
-            </div>
-
-            <form action="/calcular" method="POST" class="space-y-4">
-                <input type="hidden" name="email" value="{{ email_utilizador }}">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Custo do Produto (R$)</label>
-                    <input type="number" step="0.01" name="custo_produto" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 50.00">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Valor do Frete (R$)</label>
-                    <input type="number" step="0.01" name="frete" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 10.00">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Taxa da Maquininha (%)</label>
-                        <input type="number" step="0.01" name="taxa_maquininha" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 5.0">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Margem Desejada (%)</label>
-                        <input type="number" step="0.01" name="margem_desejada" required class="w-full p-3 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="Ex: 30.0">
-                    </div>
-                </div>
-
-                <button type="submit" class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold p-3.5 rounded-xl shadow-lg shadow-indigo-500/20 transition">
-                    Calcular Preço Ideal e Lucro Líquido
-                </button>
-            </form>
-
-            {% if resultado %}
-            <div class="mt-6 p-5 bg-slate-50 dark:bg-slate-950/80 border border-emerald-300 dark:border-emerald-500/30 rounded-2xl space-y-3 relative overflow-hidden shadow-inner">
-                <div class="absolute top-0 right-0 bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">Análise Concluída</div>
-                
-                <h2 class="font-bold text-emerald-600 dark:text-emerald-400 text-base mb-2">📊 Relatório de Precificação</h2>
-                
-                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
-                    <span class="text-slate-500 dark:text-slate-400">Custo Total Operacional:</span> 
-                    <span class="font-semibold text-slate-700 dark:text-slate-200">{{ resultado.custo_total }}</span>
-                </div>
-                
-                <div class="flex justify-between items-center text-sm py-1 border-b border-slate-200 dark:border-slate-800">
-                    <span class="text-slate-500 dark:text-slate-400">Preço de Venda Sugerido:</span> 
-                    <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">{{ resultado.preco_venda_ideal }}</span>
-                </div>
-                
-                <div class="flex justify-between items-center text-sm pt-1">
-                    <span class="text-slate-500 dark:text-slate-400">Lucro Líquido Real:</span> 
-                    <span class="font-bold text-emerald-600 dark:text-emerald-400 text-lg">{{ resultado.lucro_liquido }}</span>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- Rodapé Profissional -->
-        <div class="bg-slate-50 dark:bg-slate-950/50 py-3 px-6 text-center border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500">
-            Auditor de Precificação &copy; 2026 — Alta Performance & Segurança Corporativa
-        </div>
-    </div>
-
-    <!-- Scripts de Interatividade -->
-    <script>
-        const htmlElement = document.documentElement;
-        const thumb = document.getElementById('theme-switch-thumb');
-        const iconLight = document.getElementById('icon-light');
-        const iconDark = document.getElementById('icon-dark');
-
-        function updateThemeUI() {
-            if (htmlElement.classList.contains('dark')) {
-                thumb.style.transform = 'translateX(16px)';
-                iconLight.classList.add('hidden');
-                iconDark.classList.remove('hidden');
-            } else {
-                thumb.style.transform = 'translateX(0px)';
-                iconLight.classList.remove('hidden');
-                iconDark.classList.add('hidden');
-            }
-        }
-
-        function toggleTheme() {
-            if (htmlElement.classList.contains('dark')) {
-                htmlElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                htmlElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateThemeUI();
-        }
-
-        if (localStorage.getItem('theme') === 'light') {
-            htmlElement.classList.remove('dark');
-        }
-        updateThemeUI();
-
-        // Alternância da visibilidade da senha (Olhinho)
-        function togglePassword(fieldId, iconId) {
-            const passwordField = document.getElementById(fieldId);
-            const icon = document.getElementById(iconId);
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>`;
-            } else {
-                passwordField.type = 'password';
-                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
-            }
-        }
-
-        function switchAuth(mode) {
-            const btnLoginTab = document.getElementById('btn-login-tab');
-            const btnRegTab = document.getElementById('btn-reg-tab');
-            const formLoginBox = document.getElementById('form-login-box');
-            const formRegBox = document.getElementById('form-reg-box');
-
-            if (mode === 'login') {
-                btnLoginTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-indigo-600 dark:text-indigo-400 transition";
-                btnRegTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
-                formLoginBox.classList.remove('hidden');
-                formRegBox.classList.add('hidden');
-            } else {
-                btnRegTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg bg-white dark:bg-slate-800 shadow text-emerald-600 dark:text-emerald-400 transition";
-                btnLoginTab.className = "flex-1 py-2.5 text-xs font-bold rounded-lg text-slate-500 dark:text-slate-400 transition";
-                formRegBox.classList.remove('hidden');
-                formLoginBox.classList.add('hidden');
-            }
-        }
-    </script>
-</body>
-</html>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Palavra-passe</label>
+                            <div class="relative">
+                                <input type="password" id="login-password" name="password" required class="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-950/50 border border-slate-300 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white outline-none transition" placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('login-password', 'eye-login')" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                    <svg id="eye-login" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Caixa de Lembrar-me e Recuperação -->
+                        <div class="flex justify-between items-center text-xs">
+                            <label class="flex items-center space-x-2 text-slate-500 dark:text-slate-400 cursor-pointer">
+                                <input type="checkbox" name="lembrar" class="
+                                    
