@@ -7,10 +7,10 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
-# URL de Conexão via Connection Pooler (Porta 6543 para evitar bloqueios de rede no Render)
+# URL de Conexão Oficial via Supabase Pooler
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql://postgres.jfqbkdbirwkchejlaohg:Q3p4hXkwbN9fTIB6@aws-0-us-east-1.pooler.supabase.co:6543/postgres"
+    "postgresql://postgres.jfqbkdbirwkchejlaohg:Q3p4hXkwbN9fTIB6@aws-0-sa-east-1.pooler.supabase.co:6543/postgres"
 )
 
 def get_db_connection():
