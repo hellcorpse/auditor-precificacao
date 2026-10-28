@@ -190,7 +190,7 @@
             </div>
             {% endif %}
 
-            <!-- Secção de Histórico ou Aviso Pro -->
+            <!-- Secção de Histórico Limpo (Cartões) ou Aviso Pro -->
             <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
                 {% if is_pro %}
                 <h3 class="font-bold text-sm text-indigo-600 dark:text-indigo-400 flex items-center space-x-2">
@@ -198,27 +198,29 @@
                 </h3>
                 
                 {% if historico %}
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
-                        <thead class="bg-slate-100 dark:bg-slate-950 uppercase text-[10px] text-slate-400">
-                            <tr>
-                                <th class="p-2.5 rounded-l-lg">Produto</th>
-                                <th class="p-2.5">Custo Total</th>
-                                <th class="p-2.5">Preço Venda</th>
-                                <th class="p-2.5 rounded-r-lg">Lucro Líquido</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                            {% for item in historico %}
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-950/40 transition">
-                                <td class="p-2.5 font-semibold text-slate-800 dark:text-white">{{ item[0] }}</td>
-                                <td class="p-2.5">R$ {{ "%.2f" | format(item[1]) }}</td>
-                                <td class="p-2.5 font-bold text-indigo-500">R$ {{ "%.2f" | format(item[2]) }}</td>
-                                <td class="p-2.5 font-bold text-emerald-500">R$ {{ "%.2f" | format(item[3]) }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    {% for item in historico %}
+                    <div class="bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 p-4 rounded-xl flex flex-col space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-sm text-slate-800 dark:text-white">{{ item[0] }}</span>
+                            <span class="text-[10px] text-slate-400">{{ item[4] }}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 pt-1 text-xs">
+                            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                                <span class="text-[10px] text-slate-400 block">Custo Total</span>
+                                <strong class="text-slate-700 dark:text-slate-200">R$ {{ "%.2f" | format(item[1]) }}</strong>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                                <span class="text-[10px] text-slate-400 block">Preço Venda</span>
+                                <strong class="text-indigo-500">R$ {{ "%.2f" | format(item[2]) }}</strong>
+                            </div>
+                            <div class="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                                <span class="text-[10px] text-slate-400 block">Lucro Líquido</span>
+                                <strong class="text-emerald-500">R$ {{ "%.2f" | format(item[3]) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 {% else %}
                 <p class="text-xs text-slate-400 italic">Ainda não existem cálculos salvos no histórico.</p>
@@ -268,18 +270,4 @@
         function toggleTheme() {
             if (htmlElement.classList.contains('dark')) {
                 htmlElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                htmlElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-            updateThemeUI();
-        }
-
-        if (localStorage.getItem('theme') === 'light') {
-            htmlElement.classList.remove('dark');
-        }
-        updateThemeUI();
-
-        function togglePassword(fieldId, iconId) {
-  
+                localStorage.
