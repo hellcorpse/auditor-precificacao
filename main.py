@@ -20,6 +20,12 @@ def init_db():
             verified INTEGER DEFAULT 1
         )
     ''')
+    
+    # Inserir o Login Mestre Automático com a sua senha segura personalizada
+    master_email = "admin@teste.com"
+    master_pass = hashlib.sha256("@Leagueoflegens0".encode()).hexdigest()
+    cursor.execute("INSERT OR IGNORE INTO users (email, password, verified) VALUES (?, ?, 1)", (master_email, master_pass))
+    
     conn.commit()
     conn.close()
 
@@ -28,10 +34,8 @@ init_db()
 def hash_password(password: str):
     return hashlib.sha256(password.encode()).hexdigest()
 
-# Rota Inicial: Exibe a tela de login/apresentação se não estiver logado
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, erro: str = None, sucesso: str = None):
-    # Verifica se há sessão ativa (simulada por parâmetro simples ou cookie)
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "logado": False, 
@@ -40,7 +44,6 @@ async def home(request: Request, erro: str = None, sucesso: str = None):
         "sucesso": sucesso
     })
 
-# Rota para processar o login
 @app.post("/auth/login", response_class=HTMLResponse)
 async def login(request: Request, email: str = Form(...), password: str = Form(...)):
     conn = sqlite3.connect(DB_NAME)
@@ -55,11 +58,10 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
             "request": request, 
             "logado": False, 
             "resultado": None, 
-            "erro": "E-mail ou palavra-passe inválidos.", 
+            "erro": "E-mail ou palavra-passe inválidos. (Dica: use admin@teste.com)", 
             "sucesso": None
         })
     
-    # Login bem-sucedido: exibe a página da ferramenta com o banner e informações
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "logado": True, 
@@ -68,7 +70,6 @@ async def login(request: Request, email: str = Form(...), password: str = Form(.
         "erro": None
     })
 
-# Rota para registar novo utilizador
 @app.post("/auth/register", response_class=HTMLResponse)
 async def register(request: Request, email: str = Form(...), password: str = Form(...)):
     conn = sqlite3.connect(DB_NAME)
@@ -96,7 +97,6 @@ async def register(request: Request, email: str = Form(...), password: str = For
         "sucesso": "Conta criada com sucesso! Faça login abaixo."
     })
 
-# Rota para calcular os preços (dentro da área logada)
 @app.post("/calcular", response_class=HTMLResponse)
 async def calcular(
     request: Request,
