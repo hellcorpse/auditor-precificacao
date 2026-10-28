@@ -1,16 +1,38 @@
-from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form, Depends, HTTPException, status
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+import sqlite3
+import hashlib
 
 app = FastAPI()
-
-# Configura a pasta onde ficam os arquivos visuais (HTML)
 templates = Jinja2Templates(directory="templates")
 
+# Configuração da Base de Dados SQLite
+DB_NAME = "database.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            verified INTEGER DEFAULT 0
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def hash_password(password: str):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+# Rota Principal / Dashboard de Precificação
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # Mostra a página inicial vazia
-    return templates.TemplateResponse("index.html", {"request": request, "resultado": None})
+    return templates.TemplateResponse("index.html", {"request": request, "resultado": None, "erro": None})
 
 @app.post("/", response_class=HTMLResponse)
 async def calcular(
@@ -20,25 +42,59 @@ async def calcular(
     taxa_maquininha: float = Form(...),
     margem_desejada: float = Form(...)
 ):
-    # Lógica de cálculo
-    custo_total_inicial = custo_produto + frete
-    taxa_decimal = taxa_maquininha / 100
-    margem_decimal = margem_desejada / 100
+    try:
+        if custo_produto <= 0 or frete < 0 or taxa_maquininha < 0 or margem_desejada < 0:
+            raise ValueError("Os valores devem ser positivos.")
+
+        custo_total = custo_produto + frete
+        taxa_decimal = taxa_maquininha / 100.0
+        margem_decimal = margem_desejada / 100.0
+
+        divisor = 1 - (taxa_decimal + margem_decimal)
+        if divisor <= 0:
+            raise ValueError("A soma da taxa da maquininha e da margem desejada não pode ser igual ou superior a 100%.")
+
+        preco_venda_ideal = custo_total / divisor
+        valor_taxa = preco_venda_ideal * taxa_decimal
+        lucro_liquido = preco_venda_ideal - (custo_total + valor_taxa)
+
+        resultado = {
+            "custo_total": f"R$ {custo_total:.2f}",
+            "preco_venda_ideal": f"R$ {preco_venda_ideal:.2f}",
+            "lucro_liquido": f"R$ {lucro_liquido:.2f}"
+        }
+
+        return templates.TemplateResponse("index.html", {"request": request, "resultado": resultado, "erro": None})
     
-    divisor = 1 - (taxa_decimal + margem_decimal)
+    except ValueError as e:
+        return templates.TemplateResponse("index.html", {"request": request, "resultado": None, "erro": str(e)})
+
+# Rotas de Autenticação (Registo e Login)
+@app.post("/auth/register")
+async def register(email: str = Form(...), password: str = Form(...)):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    try:
+        hashed_pw = hash_password(password)
+        cursor.execute("INSERT INTO users (email, password, verified) VALUES (?, ?, 1)", (email, hashed_pw))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        return RedirectResponse(url="/?erro=email_existente", status_code=status.HTTP_303_SEE_OTHER)
+    finally:
+        conn.close()
+    return RedirectResponse(url="/?sucesso=registado", status_code=status.HTTP_303_SEE_OTHER)
+
+@app.post("/auth/login")
+async def login(email: str = Form(...), password: str = Form(...)):
+    conn = sqlite3.connect(DB_NAME)
+    cursor = conn.cursor()
+    hashed_pw = hash_password(password)
+    cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, hashed_pw))
+    user = cursor.fetchone()
+    conn.close()
     
-    if divisor <= 0:
-        erro = "A soma das taxas e da margem de lucro não pode ser igual ou maior que 100%!"
-        return templates.TemplateResponse("index.html", {"request": request, "erro": erro, "resultado": None})
+    if not user:
+        return RedirectResponse(url="/?erro=credenciais_invalidas", status_code=status.HTTP_303_SEE_OTHER)
     
-    preco_venda_ideal = custo_total_inicial / divisor
-    valor_taxa = preco_venda_ideal * taxa_decimal
-    lucro_liquido = preco_venda_ideal - (custo_total_inicial + valor_taxa)
+    return RedirectResponse(url="/?sucesso=login", status_code=status.HTTP_303_SEE_OTHER)
     
-    resultado = {
-        "preco_venda_ideal": f"R$ {preco_venda_ideal:.2f}",
-        "lucro_liquido": f"R$ {lucro_liquido:.2f}",
-        "custo_total": f"R$ {custo_total_inicial:.2f}"
-    }
-    
-    return templates.TemplateResponse("index.html", {"request": request, "resultado": resultado, "erro": None})
